@@ -26,7 +26,7 @@ fn basic_test() {
         String::from_str("--Option2=test").unwrap(),
         String::from_str("Command2").unwrap(),
     ];
-    let command_set = parse_input(args, None);
+    let command_set = parse_args(args, None);
     let expected_output = vec![
         String::from_str("Command1").unwrap(),
         String::from_str("Command2").unwrap(),

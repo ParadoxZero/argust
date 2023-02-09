@@ -10,7 +10,7 @@ The command line is divided into three parts -
 The usage is very straight forward.
 ```rust
     let args: Vec<String> = env::args().skip(1).collect();
-    let command_set: CommandSet = commands::parse_input(args, None);
+    let command_set: ArgContext = commands::parse_args(args, None);
 
     // Use the values as required
     if let Some(command) = command_set.commands.first() {
@@ -19,3 +19,24 @@ The usage is very straight forward.
         basic_commands::help();
     }
 ```
+
+The `ArgContext` object contains structured information about arguments which were passed. It's defined as-
+```rust
+pub struct ArgContext {
+    pub options: HashMap<String, String>,
+    pub switches: Vec<String>,
+    pub args: Vec<String>,
+}
+```
+
+Please note that `options` doesn't necessarily require to be a key value pair. i.e. `cp --version` will return a hashmap with key 'version' and value empty.
+
+It's even possible to override the default parse token, i.e. "-" for switched and "--" for options by using the following object and passing it along with `parse_args` method.
+```rust
+pub struct ParseToken {
+    pub option: String,
+    pub option_key: String,
+    pub switch: String,
+}
+```
+In the command `testApp hello --print=stdin -f`. "--" is `option`, "=" is `option_key` and "-" is `switch`.
