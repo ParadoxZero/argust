@@ -4,7 +4,7 @@ use std::collections::HashMap;
 pub struct CommandSet {
     pub options: HashMap<String, String>,
     pub switches: Vec<String>,
-    pub commands: Vec<String>,
+    pub args: Vec<String>,
 }
 
 pub struct ParseToken {

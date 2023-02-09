@@ -25,7 +25,7 @@ pub fn parse_input(args: Vec<String>, custom_parse_token: Option<ParseToken>) ->
     return CommandSet {
         options,
         switches,
-        commands,
+        args: commands,
     };
 }
 

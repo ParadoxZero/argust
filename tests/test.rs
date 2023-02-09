@@ -1,4 +1,4 @@
-use cmd_rust::*;
+use argust::*;
 
 use std::str::FromStr;
 
@@ -31,7 +31,7 @@ fn basic_test() {
         String::from_str("Command1").unwrap(),
         String::from_str("Command2").unwrap(),
     ];
-    assert!(compare(&command_set.commands, &expected_output));
+    assert!(compare(&command_set.args, &expected_output));
 
     let expected_output = vec![
         String::from_str("h").unwrap(),
