@@ -1,4 +1,4 @@
-name: Rust
+name: PR Validation
 
 on:
   pull_request:
