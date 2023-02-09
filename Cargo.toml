@@ -2,6 +2,13 @@
 name = "argust"
 version = "0.1.0"
 edition = "2021"
+authors = ["Sidhin S Thomas"]
+description = "Simple to use commandline parser for rust programs"
+license = "MIT"
+readme = "Readme.md"
+repository = "https://github.com/ParadoxZero/argust"
+keywords = ["commandline", "cmd", "args", "args-parser", "cli"]
+categories = ["command-line-interface"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
