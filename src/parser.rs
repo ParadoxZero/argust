@@ -1,10 +1,10 @@
 use crate::utils::new_string;
-use crate::CommandSet;
+use crate::ArgContext;
 use crate::ParseToken;
 use std::collections::HashMap;
 use std::str::FromStr;
 
-pub fn parse_input(args: Vec<String>, custom_parse_token: Option<ParseToken>) -> CommandSet {
+pub fn parse_args(args: Vec<String>, custom_parse_token: Option<ParseToken>) -> ArgContext {
     let parse_token = get_parse_token(custom_parse_token);
 
     let mut options: HashMap<String, String> = HashMap::new();
@@ -22,7 +22,7 @@ pub fn parse_input(args: Vec<String>, custom_parse_token: Option<ParseToken>) ->
             commands.push(arg);
         }
     }
-    return CommandSet {
+    return ArgContext {
         options,
         switches,
         args: commands,

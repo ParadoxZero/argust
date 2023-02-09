@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 #[derive(Debug)]
-pub struct CommandSet {
+pub struct ArgContext {
     pub options: HashMap<String, String>,
     pub switches: Vec<String>,
     pub args: Vec<String>,
