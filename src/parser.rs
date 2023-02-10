@@ -2,9 +2,20 @@ use crate::utils::new_string;
 use crate::ArgContext;
 use crate::ParseToken;
 use std::collections::HashMap;
+use std::ffi::OsString;
 use std::str::FromStr;
 
-pub fn parse_args(args: Vec<String>, custom_parse_token: Option<ParseToken>) -> ArgContext {
+pub trait ToRustString {
+    fn to_rstr(&self) -> String;
+}
+
+pub fn parse_args<T>(
+    args: impl Iterator<Item = T>,
+    custom_parse_token: Option<ParseToken>,
+) -> ArgContext
+where
+    T: ToRustString,
+{
     let parse_token = get_parse_token(custom_parse_token);
 
     let mut options: HashMap<String, String> = HashMap::new();
@@ -12,6 +23,7 @@ pub fn parse_args(args: Vec<String>, custom_parse_token: Option<ParseToken>) -> 
     let mut commands: Vec<String> = Vec::new();
 
     for arg in args {
+        let arg = arg.to_rstr();
         if arg.starts_with(&parse_token.option) {
             let values = arg.replace(&parse_token.option, "");
             let values: (String, String) = split_key_value(values, &parse_token.option_key);
@@ -19,7 +31,7 @@ pub fn parse_args(args: Vec<String>, custom_parse_token: Option<ParseToken>) -> 
         } else if arg.starts_with(&parse_token.switch) {
             switches.push(arg.replace(&parse_token.switch, ""));
         } else {
-            commands.push(arg);
+            commands.push(arg.to_string());
         }
     }
     return ArgContext {
@@ -51,4 +63,22 @@ fn get_parse_token(parse_token: Option<ParseToken>) -> ParseToken {
         },
     };
     return parse_token;
+}
+
+impl ToRustString for &OsString {
+    fn to_rstr(&self) -> String {
+        self.to_string_lossy().to_string()
+    }
+}
+
+impl ToRustString for &String {
+    fn to_rstr(&self) -> String {
+        self.to_string()
+    }
+}
+
+impl ToRustString for &&str {
+    fn to_rstr(&self) -> String {
+        self.to_string()
+    }
 }
