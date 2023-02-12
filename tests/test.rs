@@ -180,3 +180,16 @@ fn valid_input() {
     assert!(compare(&command_set.args, &expected_output));
     assert_eq!(command_set.short_params["-"], None);
 }
+
+#[test]
+fn add_params() {
+    let args: Vec<&str> = vec!["-tblah", "-sblah"];
+    let mut parse_config = ParserConfig::new();
+    parse_config.add_parameter('t', "test");
+    parse_config.add_parameter('s', "short");
+    parse_args(args.iter(), Some(parse_config.clone()));
+    assert!(parse_config.parameterized_long_params.contains("test"));
+    assert!(parse_config.parameterized_long_params.contains("short"));
+    assert!(parse_config.parameterized_short_params.contains("s"));
+    assert!(parse_config.parameterized_short_params.contains("t"));
+}

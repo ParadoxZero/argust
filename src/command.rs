@@ -45,4 +45,9 @@ impl ParserConfig {
     pub fn get_parse_config(parse_config: Option<ParserConfig>) -> ParserConfig {
         parse_config.or_else(|| Some(ParserConfig::new())).unwrap()
     }
+
+    pub fn add_parameter(&mut self, short: char, long: &str) {
+        self.parameterized_short_params.insert(short.to_string());
+        self.parameterized_long_params.insert(long.to_string());
+    }
 }
