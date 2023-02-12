@@ -1,7 +1,7 @@
-use crate::utils::new_string;
 use crate::ArgContext;
-use crate::ParseToken;
+use crate::{ParseTokens, ParserConfig};
 use std::collections::HashMap;
+use std::collections::HashSet;
 use std::ffi::OsString;
 use std::str::FromStr;
 
@@ -10,64 +10,102 @@ pub trait ToRustString {
 }
 
 pub fn parse_args<T>(
-    args: impl Iterator<Item = T>,
-    custom_parse_token: Option<ParseToken>,
+    arg_list: impl Iterator<Item = T>,
+    parser_config: Option<ParserConfig>,
 ) -> ArgContext
 where
     T: ToRustString,
 {
-    let parse_token = get_parse_token(custom_parse_token);
+    let parser_config: ParserConfig = ParserConfig::get_parse_config(parser_config);
+    let parse_tokens = &parser_config.parse_tokens;
 
-    let mut options: HashMap<String, String> = HashMap::new();
-    let mut switches: Vec<String> = Vec::new();
-    let mut commands: Vec<String> = Vec::new();
+    let mut options: HashMap<String, Option<String>> = HashMap::new();
+    let mut switches: HashMap<String, Option<String>> = HashMap::new();
+    let mut args: Vec<String> = Vec::new();
 
-    for arg in args {
-        let arg = arg.to_rstr();
-        if arg.starts_with(&parse_token.option) {
-            let values = arg.replace(&parse_token.option, "");
-            let values: (String, String) = split_key_value(values, &parse_token.option_key);
-            options.insert(values.0, values.1);
-        } else if arg.starts_with(&parse_token.switch) {
-            switches.push(arg.replace(&parse_token.switch, ""));
+    let arg_list: Vec<String> = arg_list.map(|a| a.to_rstr()).collect();
+    let mut i = 0;
+    while i < arg_list.len() {
+        let arg = &arg_list[i];
+        if arg.starts_with(&parse_tokens.long_token) {
+            let (idx, key, value) = process_options(
+                i,
+                &arg_list,
+                &parser_config.parameterized_option_list,
+                parse_tokens,
+            );
+            i = idx;
+            options.insert(key, value);
+        } else if arg.starts_with(&parse_tokens.short_token) {
+            let switch = arg.replace(&parse_tokens.short_token, "");
+            let (idx, value) = process_parameterized_args(
+                &switch,
+                i,
+                &arg_list,
+                &parser_config.parameterized_switch_list,
+            );
+            i = idx;
+            switches.insert(switch, value);
         } else {
-            commands.push(arg.to_string());
+            args.push(arg.clone());
         }
+        i = i + 1;
     }
     return ArgContext {
-        options,
-        switches,
-        args: commands,
+        long_params: options,
+        short_params: switches,
+        args,
     };
 }
 
 // Privates
 
-fn split_key_value(values: String, delimiter: &str) -> (String, String) {
+fn split_key_value(values: String, delimiter: &str) -> (String, Option<String>) {
     match values.split_once(delimiter) {
-        None => (values, String::new()),
+        None => (values, None),
         Some(a) => (
-            FromStr::from_str(a.0.clone()).expect("Failed to convert to string"),
-            FromStr::from_str(a.1.clone()).expect("Failed to convert to string"),
+            FromStr::from_str(a.0).expect("Failed to convert to string"),
+            Some(FromStr::from_str(a.1).expect("Failed to convert to string")),
         ),
     }
 }
 
-fn get_parse_token(parse_token: Option<ParseToken>) -> ParseToken {
-    let parse_token = match parse_token {
-        Some(token) => token,
-        None => ParseToken {
-            option: new_string!("--"),
-            option_key: new_string!("="),
-            switch: new_string!("-"),
-        },
-    };
-    return parse_token;
+fn process_parameterized_args<'a>(
+    key: &str,
+    idx: usize,
+    arg_list: &'a [String],
+    parameterized_list: &'a HashSet<String>,
+) -> (usize, Option<String>) {
+    if parameterized_list.contains(key) {
+        let idx = idx + 1;
+        return (idx, arg_list.get(idx).map(|v| v.clone()));
+    } else {
+        return (idx, None);
+    }
+}
+
+fn process_options(
+    idx: usize,
+    arg_list: &[String],
+    parameterized_list: &HashSet<String>,
+    parser_tokens: &ParseTokens,
+) -> (usize, String, Option<String>) {
+    let key = arg_list[idx].replace(&parser_tokens.long_token, "");
+    if &parser_tokens.long_seperator == " " {
+        let (idx, value) = process_parameterized_args(&key, idx, &arg_list, &parameterized_list);
+        return (idx, key, value);
+    } else {
+        let (key, value) = split_key_value(key, &parser_tokens.long_seperator);
+        return (idx, key, value);
+    }
 }
 
 impl ToRustString for &OsString {
     fn to_rstr(&self) -> String {
-        self.to_string_lossy().to_string()
+        self.clone()
+            .clone()
+            .into_string()
+            .expect("Invalid unicode in input")
     }
 }
 
