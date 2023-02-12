@@ -192,6 +192,10 @@ fn add_params() {
     assert!(parse_config.parameterized_long_params.contains("short"));
     assert!(parse_config.parameterized_short_params.contains("s"));
     assert!(parse_config.parameterized_short_params.contains("t"));
-    assert!(context.contains(Some('t'), Some("test".to_string())).0);
-    assert!(context.contains(Some('s'), Some("short".to_string())).0);
+    assert!(context.contains(Some('t'), Some("test")).0);
+    assert!(context.contains(Some('s'), Some("short")).0);
+    assert!(context.contains_short('t').0);
+    assert!(context.contains_short('s').0);
+    assert!(context.contains_long("short").0 == false);
+    assert!(context.contains_long("test").0 == false);
 }
