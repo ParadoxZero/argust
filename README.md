@@ -3,6 +3,8 @@ A simple command line parser which will accept the vector of program arguments a
 
 Argust is aimed towards smaller utilities that want to avoid the added conplexities due to powerful flexiblity and input validations offered by declarative or derivative arg parsers. This is a quick and simple library to handle basic arg handling needs.
 
+No need to design your input, prepare arguement hierarchy. No specific order and updating the params just require adding the string to a list.
+ 
 > There is no support for string containing non-valid unicode.
 
 In the context of Argust the command line is divided into three parts - 
