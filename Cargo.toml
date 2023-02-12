@@ -1,6 +1,6 @@
 [package]
 name = "argust"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 authors = ["Sidhin S Thomas"]
 description = "Simple to use commandline parser for rust programs"
