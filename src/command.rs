@@ -51,3 +51,27 @@ impl ParserConfig {
         self.parameterized_long_params.insert(long.to_string());
     }
 }
+
+impl ArgContext {
+    pub fn contains(&self, short: Option<char>, long: Option<String>) -> (bool, Option<String>) {
+        if let Some(short) = short {
+            return self.check_value(short.to_string(), &self.short_params);
+        }
+        if let Some(long) = long {
+            return self.check_value(long.to_string(), &self.long_params);
+        }
+        return (false, None);
+    }
+
+    fn check_value(
+        &self,
+        key: String,
+        list: &HashMap<String, Option<String>>,
+    ) -> (bool, Option<String>) {
+        let key = list.get(&key);
+        match key {
+            Some(value) => return (true, value.to_owned()),
+            None => return (false, None),
+        };
+    }
+}

@@ -187,9 +187,11 @@ fn add_params() {
     let mut parse_config = ParserConfig::new();
     parse_config.add_parameter('t', "test");
     parse_config.add_parameter('s', "short");
-    parse_args(args.iter(), Some(parse_config.clone()));
+    let context = parse_args(args.iter(), Some(parse_config.clone()));
     assert!(parse_config.parameterized_long_params.contains("test"));
     assert!(parse_config.parameterized_long_params.contains("short"));
     assert!(parse_config.parameterized_short_params.contains("s"));
     assert!(parse_config.parameterized_short_params.contains("t"));
+    assert!(context.contains(Some('t'), Some("test".to_string())).0);
+    assert!(context.contains(Some('s'), Some("short".to_string())).0);
 }
