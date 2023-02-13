@@ -183,11 +183,12 @@ fn valid_input() {
 
 #[test]
 fn add_params() {
-    let args: Vec<&str> = vec!["-tblah", "-sblah", "--test", "test"];
+    let args: Vec<&str> = vec!["-tblah", "-sblah", "--test", "test", "--both", "both", "-p"];
     let mut parse_config = ParserConfig::new();
     parse_config.parse_tokens.option_key = " ".to_string();
     parse_config.add_parameter('t', "test");
     parse_config.add_parameter('s', "short");
+    parse_config.add_parameter('b', "both");
     let context = parse_args(args.iter(), Some(parse_config.clone()));
 
     assert!(parse_config.parameterized_long_params.contains("test"));
@@ -200,4 +201,7 @@ fn add_params() {
     assert!(context.contains_short('s').0);
     assert!(context.contains_long("short").0 == false);
     assert!(context.contains_long("test").1 == Some("test".to_string()));
+    assert!(context.contains_long("both").1 == Some("both".to_string()));
+    assert!(context.contains(Some('b'), Some("both")).1 == Some("both".to_string()));
+    assert!(context.contains(Some('p'), Some("pop")).0);
 }

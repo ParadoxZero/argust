@@ -59,12 +59,20 @@ impl ArgContext {
     pub fn contains_long(&self, long: &str) -> (bool, Option<String>) {
         return self.contains(None, Some(long));
     }
+
+    /// Return is the `ArgContext` contains the given string and it's value
+    /// Since long format is the more verbose parameter. If both long and short
+    /// params are provided. The method only values the long one.
     pub fn contains(&self, short: Option<char>, long: Option<&str>) -> (bool, Option<String>) {
+        if let Some(long) = long {
+            let ret = self.check_value(long, &self.long_params);
+            if ret.0 {
+                return ret;
+            }
+        }
+
         if let Some(short) = short {
             return self.check_value(&short.to_string(), &self.short_params);
-        }
-        if let Some(long) = long {
-            return self.check_value(long, &self.long_params);
         }
         return (false, None);
     }
