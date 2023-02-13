@@ -35,7 +35,7 @@ where
                 parse_tokens,
             );
             i = idx;
-            short_params.insert(key, value);
+            long_params.insert(key, value);
         } else if arg.starts_with(&parse_tokens.short_token) && arg != &parse_tokens.short_token {
             let (idx, switch, value) = process_short_params(
                 i,
@@ -44,15 +44,15 @@ where
                 parse_tokens,
             );
             i = idx;
-            long_params.insert(switch, value);
+            short_params.insert(switch, value);
         } else {
             args.push(arg.clone());
         }
         i = i + 1;
     }
     return ArgContext {
-        long_params: short_params,
-        short_params: long_params,
+        long_params,
+        short_params,
         args,
     };
 }
